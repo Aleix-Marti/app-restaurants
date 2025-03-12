@@ -25,7 +25,7 @@ wp-config.php
 !/wp-content/themes/amc/
 
 # Example plugin
-/wp-content/plugins/hello.php
+/wp-content/plugins/
 !/wp-content/plugins/app-restaurants/
 
 # Uploads
