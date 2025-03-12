@@ -43,7 +43,3 @@ wp-content/themes/twenty*/
 
 # htaccess
 /.htaccess
-
-# All themes, except amc.
-/wp-content/themes/*
-!/wp-content/themes/amc/ # Repetim per assegurar-nos
