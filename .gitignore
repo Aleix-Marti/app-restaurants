@@ -43,3 +43,6 @@ wp-content/themes/twenty*/
 
 # htaccess
 /.htaccess
+
+# local
+local-xdebuginfo.php

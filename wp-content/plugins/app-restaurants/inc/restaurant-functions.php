@@ -1,0 +1,271 @@
+<?php
+
+function restaurant_submission_form() {
+  ob_start(); ?>
+
+<form id="restaurant-form">
+    <input type="hidden" name="action" value="handle_restaurant_submission"> <!-- Camp afegit -->
+    <label for="restaurant_name">Nom del Restaurant:</label>
+    <input type="text" id="restaurant_name" name="restaurant_name" required>
+
+    <label for="address">Adreça:</label>
+    <input type="text" id="address" name="address" required>
+
+    <ul id="suggestions"></ul> <!-- Llista per suggeriments -->
+
+    <!-- <input type="hidden" id="latitude" name="latitude"> -->
+    <!-- <input type="hidden" id="longitude" name="longitude"> -->
+    <input type="text" id="latitude" name="latitude">
+    <input type="text" id="longitude" name="longitude">
+
+    <fieldset>
+        <legend>Dies d'obertura:</legend>
+        <label><input type="checkbox" name="opening_days[monday]"> Dilluns</label>
+        <label><input type="checkbox" name="opening_days[tuesday]"> Dimarts</label>
+        <label><input type="checkbox" name="opening_days[wednesday]"> Dimecres</label>
+        <label><input type="checkbox" name="opening_days[thursday]"> Dijous</label>
+        <label><input type="checkbox" name="opening_days[friday]"> Divendres</label>
+        <label><input type="checkbox" name="opening_days[saturday]"> Dissabte</label>
+        <label><input type="checkbox" name="opening_days[sunday]"> Diumenge</label>
+    </fieldset>
+
+    <button type="submit">Crear Restaurant</button>
+</form>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const addressInput = document.getElementById("address");
+        const latitudeInput = document.getElementById("latitude");
+        const longitudeInput = document.getElementById("longitude");
+
+
+
+        // Comprovar si el navegador suporta geolocalització
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const userLat = position.coords.latitude;
+                    const userLon = position.coords.longitude;
+
+                    // Actualitzar mapa i marcador amb la ubicació de l'usuari
+                    map.setView([userLat, userLon], 15);
+                    marker.setLatLng([userLat, userLon]).bindPopup("La teva ubicació actual").openPopup();
+
+                    // Actualitzar camps ACF
+                    latitudeInput.value = userLat;
+                    longitudeInput.value = userLon;
+                    
+                    console.log("Ubicació de l'usuari trobada:", userLat, userLon);
+
+                    // Obtenir l'adreça basada en les coordenades trobades
+                    updateAddressFromCoords(userLat, userLon);
+                },
+                function (error) {
+                    console.warn("No s'ha pogut obtenir la ubicació de l'usuari:", error.message);
+                }
+            );
+        } else {
+            console.warn("El teu navegador no suporta la geolocalització.");
+        }
+
+
+
+        // addressInput.addEventListener("input", function () {
+        //     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.value)}`)
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.length > 0) {
+        //                 const result = data[0];
+        //                 latitudeInput.value = result.lat;
+        //                 longitudeInput.value = result.lon;
+        //             }
+        //         });
+        // });
+        
+        console.log("Camps detectats:", addressInput, latitudeInput, longitudeInput);
+
+      if (!addressInput || !latitudeInput || !longitudeInput) {
+          console.error("No s'han trobat els camps ACF correctes.");
+          return;
+      }
+
+      // Coordenades per defecte (si no n'hi ha guardades)
+      let initialLat = latitudeInput.value ? parseFloat(latitudeInput.value) : 41.3879; // Barcelona
+      let initialLon = longitudeInput.value ? parseFloat(longitudeInput.value) : 2.1699;
+
+      // Crear contenidor per al mapa dins de l'editor
+      const mapContainerId = "acf-leaflet-map";
+      let mapContainer = document.getElementById(mapContainerId);
+      if (!mapContainer) {
+          mapContainer = document.createElement("div");
+          mapContainer.id = mapContainerId;
+          mapContainer.style = "height: 400px; width: 100%; margin-top: 10px;";
+          longitudeInput.parentElement.appendChild(mapContainer); // Afegir el mapa sota el camp de longitud
+      }
+
+      // Inicialitzar el mapa
+      const map = L.map(mapContainerId, { zoomControl: true }).setView([initialLat, initialLon], 15);
+
+      // Afegir capa de mapes de OpenStreetMap
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Afegir marcador draggable
+      const marker = L.marker([initialLat, initialLon], { draggable: true }).addTo(map)
+          .bindPopup("Ubicació seleccionada")
+          .openPopup();
+
+      // SOLUCIÓ: Redibuixar el mapa quan l'usuari obre l'editor
+      setTimeout(() => {
+          map.invalidateSize();
+      }, 500);
+
+      // 🔹 **ACTUALITZAR ADREÇA QUAN ES MOU EL MARCADOR**
+      function updateAddressFromCoords(lat, lon) {
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+              .then(response => response.json())
+              .then(data => {
+                  if (data && data.display_name) {
+                      addressInput.value = data.display_name;
+                      console.log("Nova adreça trobada:", data.display_name);
+                  } else {
+                      console.warn("No s'ha trobat cap adreça per aquestes coordenades.");
+                  }
+              })
+              .catch(error => console.error("Error a l'API de Nominatim (Reverse Geocoding):", error));
+      }
+
+      // Quan el marcador es mou, actualitzar les coordenades i l'adreça
+      marker.on("dragend", function (event) {
+          const position = marker.getLatLng();
+          latitudeInput.value = position.lat;
+          longitudeInput.value = position.lng;
+          console.log("Nova latitud:", position.lat, "Nova longitud:", position.lng);
+          
+          // Obtenir l'adreça basada en les noves coordenades
+          updateAddressFromCoords(position.lat, position.lng);
+      });
+
+      // Quan l'usuari busca una adreça, actualitzar el mapa i les coordenades
+      addressInput.addEventListener("blur", function () {
+          if (this.value.length > 3) {
+              fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.value)}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.length > 0) {
+                          const result = data[0];
+                          const newLatLng = [parseFloat(result.lat), parseFloat(result.lon)];
+
+                          // Actualitzar mapa i marcador
+                          map.setView(newLatLng, 15);
+                          marker.setLatLng(newLatLng).bindPopup(result.display_name).openPopup();
+
+                          // Actualitzar camps ACF
+                          latitudeInput.value = result.lat;
+                          longitudeInput.value = result.lon;
+                          console.log("Ubicació trobada:", result.display_name, "Lat:", result.lat, "Lon:", result.lon);
+                      } else {
+                          alert("No s'han trobat resultats per aquesta adreça.");
+                      }
+                  })
+                  .catch(error => console.error("Error a l'API de Nominatim:", error));
+          }
+      });
+
+        document.getElementById("restaurant-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                method: "POST",
+                body: new URLSearchParams(formData) // Convertim FormData a x-www-form-urlencoded
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Restaurant creat correctament!");
+                    this.reset();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error AJAX:", error);
+            });
+        });
+    });
+
+  </script>
+
+  <style>
+      #suggestions {
+          list-style: none;
+          padding: 0;
+          border: 1px solid #ccc;
+          max-height: 150px;
+          overflow-y: auto;
+          background: white;
+          position: absolute;
+      }
+      #suggestions li {
+          padding: 5px;
+          cursor: pointer;
+      }
+      #suggestions li:hover {
+          background: #f0f0f0;
+      }
+  </style>
+
+  <?php return ob_get_clean();
+}
+add_shortcode('restaurant_form', 'restaurant_submission_form');
+
+// PROCESSAR EL FORMULARI A PHP
+function handle_restaurant_submission() {
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "handle_restaurant_submission") {
+        $name = sanitize_text_field($_POST["restaurant_name"]);
+        $address = sanitize_text_field($_POST["address"]);
+        $latitude = sanitize_text_field($_POST["latitude"]);
+        $longitude = sanitize_text_field($_POST["longitude"]);
+        $opening_days = isset($_POST["opening_days"]) ? $_POST["opening_days"] : [];
+
+        // Verifiquem que els camps requerits no són buits
+        if (empty($name) || empty($address) || empty($latitude) || empty($longitude)) {
+            wp_send_json_error(["message" => "Falten dades obligatòries"]);
+            wp_die();
+        }
+
+        // Crear el post del restaurant
+        $post_id = wp_insert_post([
+            "post_title" => $name,
+            "post_type" => "restaurant",
+            "post_status" => "publish"
+        ]);
+
+        if ($post_id) {
+            update_field("adress", $address, $post_id);
+            update_field("location", ["latitude" => $latitude, "longitude" => $longitude, "address" => $address], $post_id);
+
+            foreach (["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as $day) {
+                update_field("opening_days_" . $day, isset($opening_days[$day]) ? 1 : 0, $post_id);
+            }
+
+            wp_send_json_success(["message" => "Restaurant creat correctament"]);
+        } else {
+            wp_send_json_error(["message" => "No s'ha pogut crear el restaurant"]);
+        }
+    } else {
+        wp_send_json_error(["message" => "Petició no vàlida"]);
+    }
+    wp_die();
+}
+add_action("wp_ajax_handle_restaurant_submission", "handle_restaurant_submission");
+add_action("wp_ajax_nopriv_handle_restaurant_submission", "handle_restaurant_submission");
