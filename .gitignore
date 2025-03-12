@@ -22,9 +22,11 @@ wp-config.php
 
 # Example themes
 /wp-content/themes/twenty*/
+!/wp-content/themes/amc/
 
 # Example plugin
 /wp-content/plugins/hello.php
+!/wp-content/plugins/app-restaurants/
 
 # Uploads
 /wp-content/uploads/
