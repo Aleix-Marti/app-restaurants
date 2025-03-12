@@ -24,9 +24,12 @@ wp-config.php
 /wp-content/themes/twenty*/
 !/wp-content/themes/amc/
 
-# Example plugin
-/wp-content/plugins/
+# Plugin app-restaurants (Whitelisted)
 !/wp-content/plugins/app-restaurants/
+
+# Ignore all other plugins
+/wp-content/plugins/*
+!/wp-content/plugins/app-restaurants/ # Repetim per assegurar-nos
 
 # Uploads
 /wp-content/uploads/
@@ -37,14 +40,6 @@ wp-config.php
 # htaccess
 /.htaccess
 
-# All plugins
-#
-# Note: If you wish to whitelist plugins,
-# uncomment the next line
-#/wp-content/plugins
-
-# All themes
-#
-# Note: If you wish to whitelist themes,
-# uncomment the next line
-#/wp-content/themes
+# All themes, except amc.
+/wp-content/themes/*
+!/wp-content/themes/amc/ # Repetim per assegurar-nos
