@@ -2,6 +2,12 @@
 
 /** Funcionalitats relacionades amb ACF */
 
+function my_acf_json_save_point( $path ) {
+    return RESTAURANT_LIST_PATH . '/acf-json';
+}
+add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
+
+
 
 /**
  * Sincronitzar mapa, coordenades i adreça a la pàgina d'edició del restaurant al backoffice ACF

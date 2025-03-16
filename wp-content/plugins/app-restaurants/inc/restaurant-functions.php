@@ -5,6 +5,8 @@ function restaurant_submission_form() {
 
 <form id="restaurant-form">
     <input type="hidden" name="action" value="handle_restaurant_submission"> <!-- Camp afegit -->
+    <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('nonce-add-restaurant'); ?>"> <!-- Camp afegit -->
+    <input type="hidden" name="author" value="<?php echo get_current_user_id(); ?>"> <!-- Camp afegit -->
     <label for="restaurant_name">Nom del Restaurant:</label>
     <input type="text" id="restaurant_name" name="restaurant_name" required>
 
@@ -230,12 +232,18 @@ add_shortcode('restaurant_form', 'restaurant_submission_form');
 
 // PROCESSAR EL FORMULARI A PHP
 function handle_restaurant_submission() {
-    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "handle_restaurant_submission") {
+    // if (!( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], 'nonce-add-restaurant' ) )) {
+    //     wp_send_json_error(["message" => "Nonce no vàlid"]);
+    //     wp_die();
+    // }
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "handle_restaurant_submission" ) {
         $name = sanitize_text_field($_POST["restaurant_name"]);
         $address = sanitize_text_field($_POST["address"]);
         $latitude = sanitize_text_field($_POST["latitude"]);
         $longitude = sanitize_text_field($_POST["longitude"]);
         $opening_days = isset($_POST["opening_days"]) ? $_POST["opening_days"] : [];
+        $author = isset($_POST["author"]) ? $_POST["author"] : 0;
 
         // Verifiquem que els camps requerits no són buits
         if (empty($name) || empty($address) || empty($latitude) || empty($longitude)) {
@@ -247,7 +255,8 @@ function handle_restaurant_submission() {
         $post_id = wp_insert_post([
             "post_title" => $name,
             "post_type" => "restaurant",
-            "post_status" => "publish"
+            "post_status" => "publish",
+            "post_author" => $author
         ]);
 
         if ($post_id) {
@@ -269,3 +278,91 @@ function handle_restaurant_submission() {
 }
 add_action("wp_ajax_handle_restaurant_submission", "handle_restaurant_submission");
 add_action("wp_ajax_nopriv_handle_restaurant_submission", "handle_restaurant_submission");
+
+
+
+
+function amc_list_restaurants() {
+    $restaurants = get_posts([
+        "post_type"      => "restaurant",
+        "posts_per_page" => -1
+    ]);
+
+    // Carregar scripts de Leaflet només quan calgui el mapa
+    wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+    wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], null, true);
+
+    ob_start(); ?>
+
+    <div>
+        <label>
+            <input type="radio" name="view-toggle" value="list" checked> Vista Llista
+        </label>
+        <label>
+            <input type="radio" name="view-toggle" value="map"> Vista Mapa
+        </label>
+    </div>
+
+    <div id="restaurant-list">
+        <ul>
+            <?php foreach ($restaurants as $restaurant) : ?>
+                <li>
+                    <a href="<?php echo get_permalink($restaurant); ?>">
+                        <?php echo esc_html($restaurant->post_title); ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+
+    <div id="restaurant-map" style="height: 500px; display: none;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var listView = document.getElementById("restaurant-list");
+            var mapView = document.getElementById("restaurant-map");
+            var radioButtons = document.querySelectorAll('input[name="view-toggle"]');
+
+            radioButtons.forEach(function (radio) {
+                radio.addEventListener("change", function () {
+                    if (this.value === "map") {
+                        listView.style.display = "none";
+                        mapView.style.display = "block";
+                        initMap();
+                    } else {
+                        listView.style.display = "block";
+                        mapView.style.display = "none";
+                    }
+                });
+            });
+
+            function initMap() {
+                if (window.map) return; // Evita reinicialitzar el mapa
+                
+                window.map = L.map('restaurant-map').setView([41.3851, 2.1734], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                var markers = [];
+                
+                <?php foreach ($restaurants as $restaurant) :
+                    $location = get_field('location', $restaurant->ID);
+                    if ($location && !empty($location['latitude']) && !empty($location['longitude'])) :
+                        $lat = esc_js($location['latitude']);
+                        $lng = esc_js($location['longitude']);
+                        $name = esc_js($restaurant->post_title);
+                        $url = esc_url(get_permalink($restaurant->ID));
+                        ?>
+                        markers.push(L.marker([<?php echo $lat; ?>, <?php echo $lng; ?>])
+                            .bindPopup('<a href="<?php echo $url; ?>"><?php echo $name; ?></a>')
+                            .addTo(map));
+                <?php endif; endforeach; ?>
+            }
+        });
+    </script>
+
+    <?php return ob_get_clean();
+}
+
+add_shortcode("list_restaurants", "amc_list_restaurants");
