@@ -260,7 +260,7 @@ function handle_restaurant_submission() {
         ]);
 
         if ($post_id) {
-            update_field("adress", $address, $post_id);
+            // update_field("adress", $address, $post_id);
             update_field("location", ["latitude" => $latitude, "longitude" => $longitude, "address" => $address], $post_id);
 
             foreach (["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as $day) {
