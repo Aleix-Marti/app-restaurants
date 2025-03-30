@@ -28,6 +28,20 @@ require_once RESTAURANT_LIST_PATH . 'inc/restaurant-functions.php';
 // require_once RESTAURANT_LIST_PATH . 'inc/user-login.php';
 
 
+add_action('wp_enqueue_scripts', 'amc_plugin_scripts');
+function amc_plugin_scripts() {
+
+    wp_enqueue_script('restaurant-filter', RESTAURANT_LIST_URL . '/js/filter.js', array(), null, true);
+
+    // Passar variable ajaxurl per a fetch
+    wp_localize_script('restaurant-filter', 'ajax_object', [
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'action' => 'amc_ajax_filter_restaurants',
+    ]);
+};
+
+
+
 /*
 // En la primera versió del plugin, els CPT es creen amb ACF
 

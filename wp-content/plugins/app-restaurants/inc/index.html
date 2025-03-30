@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page con Animación usando GSAP</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        section {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .intro {
+            background-color: #f5f5f5;
+        }
+        
+        .animation-section {
+            background-color: #e0e0e0;
+            position: relative;
+        }
+        
+        .final-section {
+            background-color: #f0f0f0;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .circle-container {
+            width: 250px;
+            height: 250px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ffeb3b, #ff9800, #f44336, #ffeb3b);
+        }
+        
+        .circle-center {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .arrow {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="intro" id="intro-section">
+        <h1>Bienvenido a nuestra Landing Page</h1>
+        <p>Sigue haciendo scroll para descubrir nuestra increíble animación. Una experiencia única te espera más abajo.</p>
+        <div class="arrow">⬇️</div>
+    </section>
+    
+    <section class="animation-section" id="animation-section">
+        <h1>Animación Especial</h1>
+        <p>Haz scroll para girar el círculo. El avance de la página se detendrá durante la animación.</p>
+        
+        <div class="circle-container">
+            <div class="circle" id="rotating-circle"></div>
+            <div class="circle-center">
+                <span id="percentage">0%</span>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+    </section>
+    
+    <section class="final-section" id="final-section">
+        <h1>¡Gracias por Visitar!</h1>
+        <p>La animación ha terminado y ahora puedes seguir explorando el contenido con scroll normal. Esperamos que hayas disfrutado de esta experiencia interactiva.</p>
+    </section>
+    
+    <script>
+        // Esperar a que todo el contenido esté cargado
+        window.addEventListener('load', function() {
+            // Inicializar ScrollTrigger
+            gsap.registerPlugin(ScrollTrigger);
+            
+            const circle = document.getElementById('rotating-circle');
+            const percentage = document.getElementById('percentage');
+            
+            // Crear la línea de tiempo (timeline) para la animación
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#animation-section",
+                    start: "center center", // Comienza cuando el centro de la sección llega al centro de la ventana
+                    end: "+=1000", // Duración del scroll virtual
+                    pin: true, // Fija la sección en su lugar
+                    scrub: 1, // Suaviza la animación con el scroll
+                    anticipatePin: 1, // Mejora la fluidez
+                    onUpdate: (self) => {
+                        // Actualizar el porcentaje
+                        const progress = Math.floor(self.progress * 100);
+                        percentage.textContent = `${progress}%`;
+                    }
+                }
+            });
+            
+            // Añadir la animación a la línea de tiempo
+            tl.to(circle, {
+                rotation: 360,
+                duration: 1,
+                ease: "none"
+            });
+            
+            // Hacer que las flechas funcionen como navegación
+            document.querySelectorAll('.arrow').forEach(arrow => {
+                arrow.addEventListener('click', function() {
+                    const parent = this.parentNode;
+                    if (parent.id === "intro-section") {
+                        gsap.to(window, {
+                            duration: 1,
+                            scrollTo: "#animation-section",
+                            ease: "power2.inOut"
+                        });
+                    } else if (parent.id === "animation-section") {
+                        gsap.to(window, {
+                            duration: 1,
+                            scrollTo: "#final-section",
+                            ease: "power2.inOut"
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
