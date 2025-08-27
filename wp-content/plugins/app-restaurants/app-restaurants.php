@@ -38,6 +38,9 @@ function amc_plugin_scripts() {
         'ajaxurl' => admin_url('admin-ajax.php'),
         'action' => 'amc_ajax_filter_restaurants',
     ]);
+
+    wp_enqueue_style('restaurant-styles', RESTAURANT_LIST_URL . '/css/style.css', array(), '1.0', false);
+
 };
 
 

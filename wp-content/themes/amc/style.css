@@ -967,26 +967,3 @@ textarea {
 	margin-right: auto;
 	margin-bottom: 1.5em;
 }
-
-
-
-
-/********************************************************************************/
-
-.filter-button {
-  border: 2px solid #ccc;
-  padding: 10px 15px;
-  border-radius: 5px;
-  margin: 5px;
-  cursor: pointer;
-  display: inline-block;
-  background-color: transparent;
-  transition: all 0.3s;
-}
-
-.filter-button input:checked + span,
-.filter-button.active {
-  background-color: #0073aa;
-  color: white;
-  border-color: #0073aa;
-}

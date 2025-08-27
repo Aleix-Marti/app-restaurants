@@ -307,10 +307,10 @@ function amc_list_restaurants() {
     <?php endif; ?>
   </div>
       
-  <div id="restaurant-list">
+  <div id="restaurant-list" class="restaurant-list">
   <!-- Aquí es carregaran els restaurants amb AJAX -->
   </div>
-    
+  
       
   <?php
   
@@ -390,7 +390,11 @@ function amc_ajax_filter_restaurants() {
     while ($query->have_posts()) : $query->the_post(); ?>
       <div class="restaurant-item" data-long="<?php echo get_field('location')['longitude']; ?>" data-lat="<?php echo get_field('location')['latitude']; ?>">
         <h2 class="restaurant-name"><?php the_title(); ?></h2>
-        <p class="restaurant-location"><?php echo get_field('location')['address']; ?></p>
+        <div class="restaurant-location">
+          <img class="pin icon" src="<?php echo RESTAURANT_LIST_URL . '/assets/pointer.svg';?>">
+          <p class="restaurant-address"><?php echo get_field('location')['address']; ?></p>
+          <p class="restaurant-distance"></p>
+        </div>
         <a class="restaurant-link" href="<?php echo get_permalink(); ?>">Veure Detalls</a>
       </div>
     <?php endwhile;
@@ -401,7 +405,6 @@ function amc_ajax_filter_restaurants() {
   wp_die(); // sempre amb AJAX
 }
     
-      
       
       
       

@@ -1,0 +1,152 @@
+
+:root {
+	--color-dark: #272727;
+	--color-green: #00FFBF; 
+	--color-blue: #080847;
+	--color-gray: #ccc;
+	--color-bg: #fefefe;
+}
+
+*,
+*::before,
+*::after {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+html,
+body {
+	scroll-behavior: smooth;
+	background-color: var(--color-bg);
+}
+
+/***************************************************/
+/* Útils */
+
+.icon {
+  display: flex;
+  width: 1.5rem;
+  height: auto;
+}
+
+/***************************************************/
+/* Filtres */
+
+.filter-buttons {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.filter-button {
+  display: inline-block;
+	position: relative;
+  padding: .25rem 1.25rem;
+  border-radius: 1.5rem;
+  border: 2px solid var(--color-gray);
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+
+	&::before {
+		content: '';
+		position: absolute;
+		width: .85rem;
+		height: .5rem;
+		border: 2px solid var(--color-dark);
+		border-top: 0;
+		border-right: 0;
+		transform: rotate(-45deg);
+		left: .6rem;
+		top: .6rem;
+		opacity: 0;
+		transition: opacity 0.3s;
+	}
+}
+
+.filter-button input:checked + span,
+.filter-button.active {
+	padding: .25rem .5rem .25rem 2rem;
+  background-color: var(--color-gray);
+
+	&::before {
+		opacity: 1;
+	}
+}
+
+.loading {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+}
+
+.spinner {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	background-image: conic-gradient( var(--color-dark) 0%, transparent 100% );
+	animation: rotation 1s linear infinite;
+	&::before {
+		content: '';
+		display: block;
+		position: relative;
+		width: 80%;
+		height: 80%;
+		border-radius: 50%;
+	  background: var(--color-bg);
+	}
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/***************************************************/
+/* Items Restaurant format Card */
+
+.restaurant-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.restaurant-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid var(--color-dark);
+  border-radius: 6px;
+}
+
+.restaurant-location {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  grid-template-areas: 'pin address'
+                       '. distance';
+  gap: .5rem;
+
+  & .pin {
+    grid-area: pin;
+  }
+  & .restaurant-address {
+    grid-area: address;
+  }
+  & .restaurant-distance {
+    grid-area: distance;
+  }
+}
