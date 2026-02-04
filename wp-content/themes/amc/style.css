@@ -967,3 +967,101 @@ textarea {
 	margin-right: auto;
 	margin-bottom: 1.5em;
 }
+
+/*--------------------------------------------------------------
+# Theme switcher (clar / fosc / sistema)
+--------------------------------------------------------------*/
+
+.site-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+}
+
+.theme-switcher {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-left: auto;
+}
+
+.theme-switcher__option {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 8px;
+	background: transparent;
+	cursor: pointer;
+	transition: border-color 0.2s, background-color 0.2s;
+}
+
+.theme-switcher__option:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.theme-switcher__option--checked,
+.theme-switcher__option:has(:checked) {
+	border-color: #3D8A5A;
+	background-color: rgba(61, 138, 90, 0.1);
+}
+
+.theme-switcher__radio {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.theme-switcher__icon {
+	display: block;
+	width: 24px;
+	height: 24px;
+	pointer-events: none;
+}
+
+/* Tema fosc: estils del tema AMC (header, site) */
+[data-theme="dark"] .site-header {
+	background-color: #252422;
+	border-bottom: 1px solid #3D3B39;
+}
+
+[data-theme="dark"] .site-title a,
+[data-theme="dark"] .site-description {
+	color: #FAFAF8;
+}
+
+[data-theme="dark"] .site-title a:hover {
+	color: #6BC493;
+}
+
+[data-theme="dark"] .main-navigation a {
+	color: #9C9B99;
+}
+
+[data-theme="dark"] .main-navigation a:hover {
+	color: #FAFAF8;
+}
+
+[data-theme="dark"] .theme-switcher__option:hover {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .theme-switcher__option--checked,
+[data-theme="dark"] .theme-switcher__option:has(:checked) {
+	border-color: #6BC493;
+	background-color: rgba(107, 196, 147, 0.15);
+}
+
+[data-theme="dark"] .theme-switcher__icon {
+	filter: invert(1);
+}

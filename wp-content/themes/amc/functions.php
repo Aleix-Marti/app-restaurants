@@ -142,12 +142,34 @@ function amc_scripts() {
 	wp_style_add_data( 'amc-style', 'rtl', 'replace' );
 
 	wp_enqueue_script( 'amc-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'amc-theme-switcher', get_template_directory_uri() . '/js/theme-switcher.js', array(), _S_VERSION, true );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'amc_scripts' );
+
+/**
+ * Inline script per aplicar el tema abans de pintar (evitar flash).
+ * S'executa al wp_head amb prioritat 1.
+ */
+function amc_theme_switcher_inline_script() {
+	$script = <<<'JS'
+(function(){
+	var key = 'amc-theme';
+	var stored = localStorage.getItem(key);
+	var theme = (stored === 'light' || stored === 'dark') ? stored : 'system';
+	var resolved = theme;
+	if (theme === 'system') {
+		resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+	}
+	document.documentElement.setAttribute('data-theme', resolved);
+})();
+JS;
+	echo '<script>' . $script . "</script>\n";
+}
+add_action( 'wp_head', 'amc_theme_switcher_inline_script', 1 );
 
 /**
  * Implement the Custom Header feature.

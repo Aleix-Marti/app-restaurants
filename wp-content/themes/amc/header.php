@@ -56,4 +56,21 @@
 			);
 			?>
 		</nav><!-- #site-navigation -->
+
+		<?php $theme_assets = get_template_directory_uri() . '/assets/'; ?>
+		<div class="theme-switcher" role="radiogroup" aria-label="<?php esc_attr_e( 'Tema visual', 'amc' ); ?>">
+			<span class="theme-switcher__label screen-reader-text"><?php esc_html_e( 'Tema', 'amc' ); ?></span>
+			<label class="theme-switcher__option theme-switcher__option--checked">
+				<input type="radio" name="theme-switcher" value="system" class="theme-switcher__radio" checked aria-label="<?php esc_attr_e( 'Sistema', 'amc' ); ?>">
+				<img src="<?php echo esc_url( $theme_assets . 'theme-default.svg' ); ?>" alt="" class="theme-switcher__icon" width="24" height="24">
+			</label>
+			<label class="theme-switcher__option">
+				<input type="radio" name="theme-switcher" value="light" class="theme-switcher__radio" aria-label="<?php esc_attr_e( 'Clar', 'amc' ); ?>">
+				<img src="<?php echo esc_url( $theme_assets . 'theme-light.svg' ); ?>" alt="" class="theme-switcher__icon" width="24" height="24">
+			</label>
+			<label class="theme-switcher__option">
+				<input type="radio" name="theme-switcher" value="dark" class="theme-switcher__radio" aria-label="<?php esc_attr_e( 'Fosc', 'amc' ); ?>">
+				<img src="<?php echo esc_url( $theme_assets . 'theme-dark.svg' ); ?>" alt="" class="theme-switcher__icon" width="24" height="24">
+			</label>
+		</div>
 	</header><!-- #masthead -->

@@ -315,6 +315,29 @@
             "bidirectional_target": [
                 "field_67881c722ec33"
             ]
+        },
+        {
+            "key": "field_69825a594a6d8",
+            "label": "Puntuació",
+            "name": "rating",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": "",
+            "max": "",
+            "allow_in_bindings": 0,
+            "placeholder": "",
+            "step": "",
+            "prepend": "",
+            "append": ""
         }
     ],
     "location": [
@@ -335,5 +358,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 1,
-    "modified": 1742155510
+    "modified": 1770150524
 }

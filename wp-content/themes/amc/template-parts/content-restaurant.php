@@ -52,6 +52,18 @@
 
 		<article class="restaurant-details">
         <h1><?php the_title(); ?></h1>
+        
+        <?php if (function_exists('restaurant_favorite_button')) : ?>
+          <div class="restaurant-favorite-section">
+            <?php echo restaurant_favorite_button(); ?>
+          </div>
+        <?php endif; ?>
+        
+        <?php if (function_exists('restaurant_private_comments')) : ?>
+          <div class="restaurant-private-comments-section">
+            <?php echo restaurant_private_comments(); ?>
+          </div>
+        <?php endif; ?>
 
         <?php 
         // Agafem els valors guardats als ACF
@@ -65,6 +77,13 @@
 				$field_object = get_field_object('opening_days');
 
         ?>
+
+        <?php if (get_the_content()) : ?>
+            <div class="restaurant-description">
+                <h3>Descripció</h3>
+                <?php the_content(); ?>
+            </div>
+        <?php endif; ?>
 
         <p><strong>Adreça:</strong> <?php echo esc_html($address); ?></p>
 
@@ -82,12 +101,27 @@
 						$days_labels[$sub_field['name']] = $sub_field['label'];
 				}
 
+				// Obtenir horaris d'obertura
+				$opening_hours = get_field('opening_hours');
+				
 				// Mostrem només els dies on `is_open` és `true`
 				if (!empty($opening_days)) {
-						echo "<h3>Dies d'obertura:</h3><ul>";
+						echo "<h3>Horaris d'obertura:</h3><ul>";
 						foreach ($opening_days as $day => $is_open) {
 								if ($is_open && isset($days_labels[$day])) {
-										echo "<li>" . esc_html($days_labels[$day]) . "</li>";
+										$day_label = $days_labels[$day];
+										$hours_text = '';
+										
+										// Si hi ha horaris específics per aquest dia
+										if (!empty($opening_hours[$day])) {
+												$open_time = $opening_hours[$day]['open'] ?? '';
+												$close_time = $opening_hours[$day]['close'] ?? '';
+												if ($open_time && $close_time) {
+														$hours_text = ' (' . esc_html($open_time) . ' - ' . esc_html($close_time) . ')';
+												}
+										}
+										
+										echo "<li><strong>" . esc_html($day_label) . "</strong>" . $hours_text . "</li>";
 								}
 						}
 						echo "</ul>";
@@ -96,7 +130,7 @@
 				}
 				?>
 
-				<div id="restaurant-map" style="height: 500px;"></div>
+				<div id="restaurant-map"></div>
 
 
 					<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
